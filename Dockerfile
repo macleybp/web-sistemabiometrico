@@ -25,7 +25,13 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html/
 
+RUN APP_VERSION=$(cat /var/www/html/VERSION 2>/dev/null | tr -d '[:space:]') \
+    && echo "APP_VERSION=${APP_VERSION}" >> /etc/apache2/envvars
+
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
+
+ARG APP_VERSION
+ENV APP_VERSION=${APP_VERSION}
 
 EXPOSE 80
