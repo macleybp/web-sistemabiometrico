@@ -2,8 +2,8 @@
 
 date_default_timezone_set('America/Lima');
 
-require_once __DIR__ . '/auth.php';
-require_once __DIR__ . '/funciones.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
 requerir_rol(['Administrador', 'Docente']);
 
@@ -429,13 +429,13 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Alertas</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/styles.css?v=1303">
+    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1303">
 </head>
 <body class="pagina-interna pagina-alertas">
 
    <?php
    $menuActual = 'alertas';
-   require __DIR__ . '/sidebar.php';
+   require __DIR__ . '/../includes/sidebar.php';
    ?>
 
     <div class="contenido-principal">
@@ -453,7 +453,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
 
                 <div class="menu-usuario">
                     <span class="nombre-usuario-superior"><?php echo htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <a href="logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
+                    <a href="../logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
                 </div>
             </div>
         </header>
@@ -731,7 +731,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
         </div>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/main.js?v=50"></script>
+    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
     <script>
         function abrirModalAlerta(datos) {
             document.getElementById('modalAlertaTitulo').textContent = 'Detalle de alerta';

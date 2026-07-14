@@ -1,0 +1,33 @@
+# Entorno
+.env
+.env.local
+.env.production
+
+# Dependencias
+/vendor/
+/node_modules/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Docker volumes
+db_data/
+
+# Archivos compilados
+*.phar
+composer.lock
+
+# Temp
+*.tmp
+*.temp

@@ -2,8 +2,8 @@
 
 date_default_timezone_set('America/Lima');
 
-require_once __DIR__ . '/auth.php';
-require_once __DIR__ . '/funciones.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
 requerir_rol(['Administrador', 'Docente']);
 
@@ -173,7 +173,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Reportes</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/styles.css?v=1006">
+    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1006">
 </head>
 <body class="pagina-interna pagina-premium pagina-reportes">
 
@@ -187,7 +187,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
 
    <?php
    $menuActual = 'reportes';
-   require __DIR__ . '/sidebar.php';
+   require __DIR__ . '/../includes/sidebar.php';
    ?>
 
     <div class="contenido-principal contenido-premium">
@@ -213,7 +213,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                         <small><?php echo texto_seguro($rol); ?></small>
                     </div>
 
-                    <a href="logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
+                    <a href="../logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
                 </div>
             </div>
         </header>
@@ -324,7 +324,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                     </div>
 
                     <div class="acciones-panel-premium">
-                        <a href="exportar_reporte_excel.php?inicio=<?php echo urlencode($inicioSemana); ?>&fin=<?php echo urlencode($finSemana); ?>" class="boton-primario">
+                        <a href="../exports/exportar_reporte_excel.php?inicio=<?php echo urlencode($inicioSemana); ?>&fin=<?php echo urlencode($finSemana); ?>" class="boton-primario">
                             Descargar reporte
                         </a>
                     </div>
@@ -487,7 +487,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                                                     Ver
                                                 </a>
 
-                                                <a href="exportar_reporte_excel.php?inicio=<?php echo urlencode($reporte['semana_inicio']); ?>&fin=<?php echo urlencode($reporte['semana_fin']); ?>" class="boton-secundario boton-mini">
+                                                <a href="../exports/exportar_reporte_excel.php?inicio=<?php echo urlencode($reporte['semana_inicio']); ?>&fin=<?php echo urlencode($reporte['semana_fin']); ?>" class="boton-secundario boton-mini">
                                                     Descargar
                                                 </a>
                                             </div>
@@ -502,6 +502,6 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
         </main>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/main.js?v=50"></script>
+    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
 </body>
 </html>

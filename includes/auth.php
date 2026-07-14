@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/conexion.php';
+require_once __DIR__ . '/../config/conexion.php';
 
 function iniciar_sesion(PDO $pdo, string $usuario, string $contrasena, bool $recordar = false): bool
 {
@@ -127,7 +127,7 @@ function usuario_autenticado(): bool
 function requerir_sesion(): void
 {
     if (!usuario_autenticado()) {
-        header('Location: login.php');
+        header('Location: ../login.php');
         exit;
     }
 }

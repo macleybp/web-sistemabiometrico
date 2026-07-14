@@ -64,7 +64,7 @@ $menuSidebar = $rolSidebar === 'Administrador' ? $menuAdministradorSidebar : $me
 <aside class="premium-sidebar">
     <div class="premium-sidebar-marca">
         <div class="premium-sidebar-logo">
-            <img src="/SISTEMA-BIOMETRICO/img/logo.png" alt="BioAsistencia" class="logo-lateral">
+            <img src="/SISTEMA-BIOMETRICO/assets/img/logo.png" alt="BioAsistencia" class="logo-lateral">
         </div>
 
         <div class="premium-sidebar-nombre">

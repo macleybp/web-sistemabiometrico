@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/auth.php';
-require_once __DIR__ . '/funciones.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
 requerir_rol(['Administrador']);
 
@@ -332,7 +332,7 @@ $menuAdministrador = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Docentes</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/styles.css?v=1003">
+    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1003">
 </head>
 <body class="pagina-interna pagina-premium modulo-docentes">
 
@@ -344,7 +344,7 @@ $menuAdministrador = [
 
     <?php
    $menuActual = 'docentes';
-   require __DIR__ . '/sidebar.php';
+   require __DIR__ . '/../includes/sidebar.php';
    ?>
 
     <div class="contenido-principal contenido-premium">
@@ -369,7 +369,7 @@ $menuAdministrador = [
                     </div>
                 </div>
 
-                <a href="logout.php" class="boton-cerrar-sesion boton-salir-premium">Cerrar Sesión</a>
+                <a href="../logout.php" class="boton-cerrar-sesion boton-salir-premium">Cerrar Sesión</a>
             </div>
         </header>
 
@@ -635,7 +635,7 @@ $menuAdministrador = [
         </div>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/main.js?v=50"></script>
+    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
     <script>
         function abrirModalDocente(datos) {
             document.getElementById('tituloModalDocente').textContent = datos ? 'Editar docente' : 'Registrar nuevo docente';

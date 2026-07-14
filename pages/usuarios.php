@@ -2,8 +2,8 @@
 
 date_default_timezone_set('America/Lima');
 
-require_once __DIR__ . '/auth.php';
-require_once __DIR__ . '/funciones.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
 requerir_rol(['Administrador']);
 
@@ -346,13 +346,13 @@ $menuAdministrador = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Usuarios</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/styles.css?v=1008">
+    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1008">
 </head>
 <body class="pagina-interna pagina-usuarios">
 
    <?php
    $menuActual = 'usuarios';
-   require __DIR__ . '/sidebar.php';
+   require __DIR__ . '/../includes/sidebar.php';
    ?>
 
     <div class="contenido-principal">
@@ -370,7 +370,7 @@ $menuAdministrador = [
 
                 <div class="menu-usuario">
                     <span class="nombre-usuario-superior"><?php echo htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <a href="logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
+                    <a href="../logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
                 </div>
             </div>
         </header>
@@ -638,7 +638,7 @@ $menuAdministrador = [
         </div>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/main.js?v=50"></script>
+    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
     <script>
         function abrirModalUsuario(datos) {
             const titulo = document.getElementById('tituloModalUsuario');

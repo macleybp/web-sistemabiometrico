@@ -2,10 +2,10 @@
 
 date_default_timezone_set('America/Lima');
 
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/includes/auth.php';
 
 if (usuario_autenticado()) {
-    header('Location: dashboard.php');
+    header('Location: pages/dashboard.php');
     exit;
 }
 
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             if (iniciar_sesion($pdo, $usuarioIngresado, $contrasenaIngresada, $recordarMarcado)) {
-                header('Location: dashboard.php');
+                header('Location: pages/dashboard.php');
                 exit;
             }
 
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Iniciar Sesión</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/styles.css?v=203">
+    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=203">
 </head>
 <body class="pagina-login login-premium">
 
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="login-marca-principal">
                     <div class="login-logo-marco">
-                        <img src="/SISTEMA-BIOMETRICO/img/logo.png" alt="BioAsistencia" class="login-logo">
+                        <img src="/SISTEMA-BIOMETRICO/assets/img/logo.png" alt="BioAsistencia" class="login-logo">
                     </div>
 
                     <div class="login-marca-texto">
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="login-acceso-superior">
                     <div class="login-logo-secundario">
-                        <img src="/SISTEMA-BIOMETRICO/img/logo.png" alt="BioAsistencia" class="login-logo-mini">
+                        <img src="/SISTEMA-BIOMETRICO/assets/img/logo.png" alt="BioAsistencia" class="login-logo-mini">
                     </div>
 
                     <span class="login-chip-seguro">

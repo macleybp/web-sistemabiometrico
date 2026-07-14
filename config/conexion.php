@@ -1,10 +1,10 @@
 <?php
 
-$host = 'localhost';
-$puerto = '3306';
-$nombre_bd = 'bioasistencia';
-$usuario_bd = 'root';
-$contrasena_bd = '123456';
+$host = getenv('DB_HOST') ?: 'localhost';
+$puerto = getenv('DB_PORT') ?: '3306';
+$nombre_bd = getenv('DB_NAME') ?: 'bioasistencia';
+$usuario_bd = getenv('DB_USER') ?: 'root';
+$contrasena_bd = getenv('DB_PASS') ?: '123456';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;port=$puerto;dbname=$nombre_bd;charset=$charset";

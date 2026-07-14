@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/auth.php';
-require_once __DIR__ . '/funciones.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
 requerir_rol(['Administrador', 'Docente']);
 
@@ -335,7 +335,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Estudiantes</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/styles.css?v=1003">
+    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1003">
 </head>
 <body class="pagina-interna pagina-premium pagina-estudiantes">
 
@@ -350,7 +350,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
 
    <?php
    $menuActual = 'estudiantes';
-   require __DIR__ . '/sidebar.php';
+   require __DIR__ . '/../includes/sidebar.php';
    ?>
 
         <div class="contenido-principal contenido-premium">
@@ -377,7 +377,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                         </div>
                     </div>
 
-                    <a href="logout.php" class="boton-cerrar-sesion boton-salida-premium">Cerrar Sesión</a>
+                    <a href="../logout.php" class="boton-cerrar-sesion boton-salida-premium">Cerrar Sesión</a>
                 </div>
             </header>
 
@@ -674,7 +674,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
         </div>
     <?php endif; ?>
 
-    <script src="/SISTEMA-BIOMETRICO/main.js?v=50"></script>
+    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
     <script>
         function abrirModalEstudiante(datos) {
             document.getElementById('tituloModalEstudiante').textContent = datos ? 'Editar estudiante' : 'Registrar nuevo estudiante';

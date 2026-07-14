@@ -2,8 +2,8 @@
 
 date_default_timezone_set('America/Lima');
 
-require_once __DIR__ . '/conexion.php';
-require_once __DIR__ . '/funciones.php';
+require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

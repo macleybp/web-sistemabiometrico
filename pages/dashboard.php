@@ -2,8 +2,8 @@
 
 date_default_timezone_set('America/Lima');
 
-require_once __DIR__ . '/auth.php';
-require_once __DIR__ . '/funciones.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
 requerir_rol(['Administrador', 'Docente']);
 
@@ -380,7 +380,7 @@ $datosDashboard = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Panel General</title>
 
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/styles.css?v=1302">
+    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1302">
 </head>
 <body class="pagina-interna pagina-dashboard dashboard-premium">
 
@@ -392,7 +392,7 @@ $datosDashboard = [
 
    <?php
    $menuActual = 'dashboard';
-   require __DIR__ . '/sidebar.php';
+   require __DIR__ . '/../includes/sidebar.php';
    ?>
 
     <div class="premium-main">
@@ -425,7 +425,7 @@ $datosDashboard = [
                     </div>
                 </div>
 
-                <a href="logout.php" class="premium-logout">Cerrar Sesión</a>
+                <a href="../logout.php" class="premium-logout">Cerrar Sesión</a>
             </div>
         </header>
 
@@ -538,7 +538,7 @@ $datosDashboard = [
                     <div class="premium-operaciones">
                         <a href="estudiantes.php">+ Nuevo estudiante</a>
                         <a href="asistencia.php">✓ Ver asistencia</a>
-                        <a href="exportar_reporte_excel.php">Exportar reporte</a>
+                        <a href="../exports/exportar_reporte_excel.php">Exportar reporte</a>
                         <a href="alertas.php">Ver alertas</a>
                     </div>
                 </article>
@@ -640,7 +640,7 @@ $datosDashboard = [
     <script>
         window.datosDashboard = <?php echo json_encode($datosDashboard, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
     </script>
-    <script src="/SISTEMA-BIOMETRICO/dashboard.js?v=501"></script>
-    <script src="/SISTEMA-BIOMETRICO/main.js?v=500"></script>
+    <script src="/SISTEMA-BIOMETRICO/assets/js/dashboard.js?v=501"></script>
+    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=500"></script>
 </body>
 </html>

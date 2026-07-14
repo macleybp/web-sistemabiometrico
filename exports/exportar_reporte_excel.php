@@ -1,8 +1,8 @@
 <?php
 date_default_timezone_set('America/Lima');
 
-require_once __DIR__ . '/auth.php';
-require_once __DIR__ . '/funciones.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
 requerir_rol(['Administrador', 'Docente']);
 
