@@ -1,0 +1,474 @@
+#include <Arduino.h>
+#include <Adafruit_Fingerprint.h>
+#include <LiquidCrystal_I2C.h>
+
+#define PIN_LED_VERDE 6
+#define PIN_LED_ROJO 7
+#define PIN_BUZZER 8
+
+const char WIFI_SSID[] = "TU_WIFI";
+const char WIFI_PASS[] = "TU_CONTRASEÑA";
+const char SERVER_IP[] = "http://bioasistencia.infinityfreeapp.com/";
+const int SERVER_PORT = 80;
+
+const char CLAVE_API[] = "Bio%23As%24stenci4%40100%25";
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial2);
+
+unsigned long ultimoHeartbeat = 0;
+unsigned long ultimoIntentoWiFi = 0;
+
+bool espConectado = false;
+bool wifiConectado = false;
+long baudESP = 115200;
+bool hayClasesHoy = true;
+
+void lcdMostrar(String linea1, String linea2) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(linea1.substring(0, 16));
+    lcd.setCursor(0, 1);
+    lcd.print(linea2.substring(0, 16));
+}
+
+void ledsApagar() {
+    digitalWrite(PIN_LED_VERDE, LOW);
+    digitalWrite(PIN_LED_ROJO, LOW);
+}
+
+void pitido(int veces) {
+    for (int i = 0; i < veces; i++) {
+        tone(PIN_BUZZER, 2000);
+        delay(140);
+        noTone(PIN_BUZZER);
+        delay(120);
+    }
+}
+
+void respuestaVerde() {
+    ledsApagar();
+    digitalWrite(PIN_LED_VERDE, HIGH);
+    pitido(1);
+    delay(800);
+    ledsApagar();
+}
+
+void respuestaRoja() {
+    ledsApagar();
+    digitalWrite(PIN_LED_ROJO, HIGH);
+    pitido(2);
+    delay(900);
+    ledsApagar();
+}
+
+bool contiene(String texto, String buscar) {
+    return texto.indexOf(buscar) >= 0;
+}
+
+String leerESP(unsigned long tiempo) {
+    String respuesta = "";
+    unsigned long inicio = millis();
+
+    while (millis() - inicio < tiempo) {
+        while (Serial1.available()) {
+            char c = Serial1.read();
+            respuesta += c;
+        }
+    }
+
+    Serial.println(respuesta);
+    return respuesta;
+}
+
+void limpiarESP() {
+    while (Serial1.available()) {
+        Serial1.read();
+    }
+}
+
+String enviarAT(String comando, unsigned long tiempo) {
+    limpiarESP();
+
+    if (comando.length() > 0) {
+        Serial.print(">> ");
+        Serial.println(comando);
+        Serial1.println(comando);
+    }
+
+    String respuesta = leerESP(tiempo);
+    Serial.println();
+    return respuesta;
+}
+
+bool probarBaudESP(long baud) {
+    Serial1.end();
+    delay(300);
+    Serial1.begin(baud);
+    delay(1000);
+
+    String r = enviarAT("AT", 1500);
+
+    if (contiene(r, "OK")) {
+        baudESP = baud;
+        return true;
+    }
+
+    return false;
+}
+
+bool detectarESP() {
+    lcdMostrar("Buscando WiFi", "Espere...");
+    Serial.println("Buscando ESP8266...");
+
+    if (probarBaudESP(115200)) {
+        Serial.println("ESP8266 detectado en 115200");
+        return true;
+    }
+
+    if (probarBaudESP(9600)) {
+        Serial.println("ESP8266 detectado en 9600");
+        return true;
+    }
+
+    Serial.println("No se detecto ESP8266");
+    lcdMostrar("Error WiFi", "No responde");
+    return false;
+}
+
+bool conectarWiFi() {
+    if (!espConectado) {
+        espConectado = detectarESP();
+
+        if (!espConectado) {
+            return false;
+        }
+    }
+
+    lcdMostrar("Conectando", "WiFi...");
+    Serial.println("Configurando ESP8266...");
+
+    enviarAT("ATE0", 1000);
+    enviarAT("AT+CWQAP", 2500);
+    delay(800);
+    enviarAT("AT+CWMODE=1", 1500);
+    enviarAT("AT+CIPMUX=0", 1500);
+
+    String comando = "AT+CWJAP=\"";
+    comando += WIFI_SSID;
+    comando += "\",\"";
+    comando += WIFI_PASS;
+    comando += "\"";
+
+    String r = enviarAT(comando, 20000);
+
+    if (contiene(r, "WIFI GOT IP") || contiene(r, "OK")) {
+        wifiConectado = true;
+        lcdMostrar("WiFi conectado", "Sistema Activo");
+        Serial.println("WiFi conectado correctamente");
+        enviarAT("AT+CIFSR", 3000);
+        delay(1000);
+        return true;
+    }
+
+    wifiConectado = false;
+    lcdMostrar("Error WiFi", "Revise clave");
+    Serial.println("No se pudo conectar al WiFi");
+    respuestaRoja();
+    return false;
+}
+
+String enviarGET(String ruta, unsigned long tiempoRespuesta) {
+    if (!wifiConectado) {
+        if (!conectarWiFi()) {
+            return "";
+        }
+    }
+
+    enviarAT("AT+CIPMUX=0", 1000);
+
+    String comandoInicio = "AT+CIPSTART=\"TCP\",\"";
+    comandoInicio += SERVER_IP;
+    comandoInicio += "\",";
+    comandoInicio += SERVER_PORT;
+
+    String r1 = enviarAT(comandoInicio, 6000);
+
+    if (contiene(r1, "ALREADY")) {
+        Serial.println("Conexion anterior activa, cerrando...");
+        enviarAT("AT+CIPCLOSE", 1500);
+        delay(500);
+        r1 = enviarAT(comandoInicio, 6000);
+    }
+
+    if (contiene(r1, "ERROR") && !contiene(r1, "CONNECT")) {
+        wifiConectado = false;
+        return "";
+    }
+
+    String peticion = "GET ";
+    peticion += ruta;
+    peticion += " HTTP/1.1\r\n";
+    peticion += "Host: ";
+    peticion += SERVER_IP;
+    peticion += ":";
+    peticion += SERVER_PORT;
+    peticion += "\r\n";
+    peticion += "Connection: close\r\n\r\n";
+
+    String comandoEnvio = "AT+CIPSEND=";
+    comandoEnvio += peticion.length();
+
+    String r2 = enviarAT(comandoEnvio, 3000);
+
+    if (!contiene(r2, ">")) {
+        Serial.println("No se obtuvo prompt de envio");
+        enviarAT("AT+CIPCLOSE", 1000);
+        return "";
+    }
+
+    limpiarESP();
+    Serial.println(">> ENVIANDO HTTP");
+    Serial1.print(peticion);
+
+    String respuesta = leerESP(tiempoRespuesta);
+
+    if (!contiene(respuesta, "CLOSED")) {
+        Serial.println("Cerrando conexion manualmente...");
+        enviarAT("AT+CIPCLOSE", 1000);
+    } else {
+        Serial.println("Conexion cerrada por el servidor");
+    }
+
+    return respuesta;
+}
+
+void enviarHeartbeat() {
+    String ruta = "/api/estado_dispositivo.php?sensor=activo&clave=";
+    ruta += CLAVE_API;
+
+    String r = enviarGET(ruta, 5000);
+
+    if (
+        contiene(r, "HTTP/1.1 200 OK") ||
+        contiene(r, "\"estado\":\"ok\"") ||
+        contiene(r, "Sistema Activo")
+    ) {
+        Serial.println("Heartbeat enviado correctamente");
+
+        if (contiene(r, "\"tipo_dia\":\"dia_no_laborable\"") || contiene(r, "\"hay_clases_hoy\":false")) {
+            hayClasesHoy = false;
+            lcdMostrar("Dia no laborable", "No marcar");
+        } else {
+            hayClasesHoy = true;
+            lcdMostrar("Sistema Activo", "Coloque dedo");
+        }
+
+    } else {
+        Serial.println("No se pudo enviar heartbeat");
+    }
+}
+
+void esperarRetiroDedo() {
+    unsigned long inicio = millis();
+
+    while (millis() - inicio < 7000) {
+        uint8_t p = finger.getImage();
+
+        if (p == FINGERPRINT_NOFINGER) {
+            break;
+        }
+
+        delay(200);
+    }
+}
+
+int leerHuella() {
+    uint8_t p = finger.getImage();
+
+    if (p == FINGERPRINT_NOFINGER) {
+        return -1;
+    }
+
+    if (p != FINGERPRINT_OK) {
+        return -2;
+    }
+
+    p = finger.image2Tz();
+
+    if (p != FINGERPRINT_OK) {
+        return -2;
+    }
+
+    p = finger.fingerFastSearch();
+
+    if (p == FINGERPRINT_OK) {
+        return finger.fingerID;
+    }
+
+    if (p == FINGERPRINT_NOTFOUND) {
+        return 0;
+    }
+
+    return -2;
+}
+
+void registrarHuella(int idSensor) {
+    lcdMostrar(String("Huella ID ") + String(idSensor), "Enviando...");
+
+    String ruta = "/api/registrar_asistencia.php?id_sensor=";
+    ruta += idSensor;
+    ruta += "&clave=";
+    ruta += CLAVE_API;
+
+    String r = enviarGET(ruta, 9000);
+
+    if (r.length() == 0) {
+        lcdMostrar("Error conexion", "Revise WiFi");
+        respuestaRoja();
+        return;
+    }
+
+    if (contiene(r, "\"tipo\":\"dia_no_laborable\"") || contiene(r, "Hoy no hay clases")) {
+        lcdMostrar("Dia no laborable", "No se registra");
+        respuestaRoja();
+        return;
+    }
+
+    if (contiene(r, "\"tipo\":\"salida_anticipada\"") || contiene(r, "Salida Anticipada")) {
+        lcdMostrar("Salida", "Anticipada");
+        respuestaVerde();
+        return;
+    }
+
+    if (contiene(r, "\"tipo\":\"salida\"") || contiene(r, "Salida Registrada")) {
+        lcdMostrar("Salida", "Registrada");
+        respuestaVerde();
+        return;
+    }
+
+    if (contiene(r, "\"tipo\":\"asistencia\"") || contiene(r, "Asistencia Registrada")) {
+        lcdMostrar("Asistencia", "Registrada");
+        respuestaVerde();
+        return;
+    }
+
+    if (contiene(r, "\"tipo\":\"huella_repetida\"") || contiene(r, "Huella ya")) {
+        lcdMostrar("Huella ya reg.", "Retire dedo");
+        respuestaRoja();
+        return;
+    }
+
+    if (contiene(r, "\"tipo\":\"asistencia_completa\"") || contiene(r, "completa")) {
+        lcdMostrar("Asistencia", "completa");
+        respuestaRoja();
+        return;
+    }
+
+    if (contiene(r, "\"tipo\":\"huella_no_registrada\"") || contiene(r, "no registrada")) {
+        lcdMostrar("Huella no", "registrada");
+        respuestaRoja();
+        return;
+    }
+
+    if (contiene(r, "Acceso no autorizado")) {
+        lcdMostrar("Acceso", "no autorizado");
+        respuestaRoja();
+        return;
+    }
+
+    lcdMostrar("Respuesta", "no valida");
+    respuestaRoja();
+}
+
+void setup() {
+    pinMode(PIN_LED_VERDE, OUTPUT);
+    pinMode(PIN_LED_ROJO, OUTPUT);
+    pinMode(PIN_BUZZER, OUTPUT);
+
+    ledsApagar();
+
+    Serial.begin(9600);
+    Serial2.begin(57600);
+
+    lcd.init();
+    lcd.backlight();
+
+    lcdMostrar("BioAsistencia", "Iniciando...");
+    delay(1500);
+
+    finger.begin(57600);
+
+    if (finger.verifyPassword()) {
+        lcdMostrar("Sensor huella", "Detectado");
+        Serial.println("Sensor de huella detectado correctamente");
+        delay(1200);
+    } else {
+        lcdMostrar("Error sensor", "Huella");
+        Serial.println("No se detecto el sensor de huella");
+        respuestaRoja();
+    }
+
+    conectarWiFi();
+
+    if (wifiConectado) {
+        enviarHeartbeat();
+        ultimoHeartbeat = millis();
+        lcdMostrar("Sistema Activo", "Coloque dedo");
+    } else {
+        lcdMostrar("WiFi apagado", "Revise modulo");
+    }
+}
+
+void loop() {
+    if (!wifiConectado && millis() - ultimoIntentoWiFi >= 15000) {
+        ultimoIntentoWiFi = millis();
+        conectarWiFi();
+
+        if (wifiConectado) {
+            enviarHeartbeat();
+            ultimoHeartbeat = millis();
+            lcdMostrar("Sistema Activo", "Coloque dedo");
+        }
+    }
+
+    if (wifiConectado && millis() - ultimoHeartbeat >= 10000) {
+        ultimoHeartbeat = millis();
+        enviarHeartbeat();
+    }
+
+    int resultado = leerHuella();
+
+    if (resultado == -1) {
+        delay(50);
+        return;
+    }
+
+    if (resultado > 0) {
+        Serial.print("Huella reconocida ID: ");
+        Serial.println(resultado);
+        registrarHuella(resultado);
+        esperarRetiroDedo();
+        lcdMostrar("Sistema Activo", "Coloque dedo");
+        delay(700);
+        return;
+    }
+
+    if (resultado == 0) {
+        lcdMostrar("Huella no", "registrada");
+        respuestaRoja();
+        esperarRetiroDedo();
+        lcdMostrar("Sistema Activo", "Coloque dedo");
+        delay(700);
+        return;
+    }
+
+    if (resultado == -2) {
+        lcdMostrar("Error lectura", "Intente otra vez");
+        respuestaRoja();
+        esperarRetiroDedo();
+        lcdMostrar("Sistema Activo", "Coloque dedo");
+        delay(700);
+        return;
+    }
+}

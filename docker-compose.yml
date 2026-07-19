@@ -11,7 +11,8 @@ services:
       - "3307:3306"
     volumes:
       - bioasistencia_db:/var/lib/mysql
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/01-bioasistencia.sql:ro
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./docker/data.sql:/docker-entrypoint-initdb.d/02-data.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASS:-123456}"]
       interval: 10s

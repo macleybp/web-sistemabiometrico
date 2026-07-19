@@ -5,19 +5,27 @@ CARPETAS
 api/        Comunicación con Arduino y estado biométrico
 assets/     CSS, JavaScript, logo e imágenes
 config/     Configuración general, rutas y conexión PDO
-database/   Base de datos oficial del sistema
-docker/     Archivos usados para iniciar MySQL y Apache
+database/   Backup/referencia de la base de datos
+docker/     Archivos Docker (init.sql, data.sql, apache-vhost.conf)
 exports/    Generación de reportes Excel
 includes/   Sesiones, funciones compartidas y menú
 pages/      Pantallas del sistema
 
+ARCHIVOS RAÍZ
+
+Dockerfile          Imagen Docker del servidor web
+docker-compose.yml  Orquestación de servicios (web + db)
+Makefile            Comandos de construcción y gestión Docker
+.env.example        Plantilla de variables de entorno
+
 BASE DE DATOS
 
-Archivo oficial:
-database/Base de Datos_BioAsistencia.sql
+Esquema (para Docker):
+  docker/init.sql      — Tablas, vistas, índices, config base
+  docker/data.sql      — Datos de prueba (INSERTs)
 
-Copia de importación:
-database/bioasistencia.sql
+Backup/referencia:
+  database/bioasistencia.sql  — Copia completa del esquema + datos
 
 USUARIO INICIAL
 
@@ -36,13 +44,39 @@ EJECUCIÓN CON XAMPP
 1. Copiar la carpeta dentro de C:\xampp\htdocs\
 2. Encender Apache y MySQL
 3. Abrir phpMyAdmin
-4. Importar database/Base de Datos_BioAsistencia.sql
+4. Importar database/bioasistencia.sql
 5. Revisar config/conexion.php
 6. Abrir el proyecto desde localhost
 
 EJECUCIÓN CON DOCKER
 
-docker compose up -d --build
+Opción 1 — Comando directo:
+  docker compose up -d --build
+
+Opción 2 — Con Make (recomendado):
+  make up-build
 
 Dirección:
-http://localhost:8080
+  http://localhost:8080
+
+COMANDOS MAKE
+
+  make help         Mostrar todos los comandos disponibles
+  make build        Construir imagenes Docker
+  make up           Levantar servicios (detached)
+  make up-build     Reconstruir y levantar servicios
+  make down         Detener y eliminar contenedores
+  make stop         Detener contenedores sin eliminar
+  make restart      Reiniciar servicios
+  make logs         Ver logs en tiempo real
+  make logs-db      Ver solo logs de la BD
+  make logs-web     Ver solo logs del web
+  make status       Estado de los contenedores
+  make shell-db     Shell MySQL en el contenedor
+  make shell-web    Shell bash en el contenedor web
+  make clean        Eliminar contenedores, redes y volumenes
+  make clean-all    Eliminar todo incluyendo imagenes
+  make reset        Limpiar y reconstruir desde cero
+  make db-export    Exportar base de datos a archivo .sql
+  make test         Verificar configuracion docker-compose
+  make env          Mostrar variables de entorno

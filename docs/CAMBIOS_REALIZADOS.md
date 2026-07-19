@@ -12,6 +12,17 @@
 - Se protegieron las carpetas internas mediante `.htaccess`.
 - La clave del Arduino puede configurarse mediante `ARDUINO_API_KEY`.
 
+## Separación esquema/datos para producción
+
+- Se separó `docker/init.sql` en dos archivos:
+  - `docker/init.sql` — Solo esquema (tablas, vistas, índices, config base)
+  - `docker/data.sql` — Solo datos de prueba (INSERTs)
+- Se actualizó `docker-compose.yml` para montar ambos archivos en orden:
+  - `01-init.sql` (esquema)
+  - `02-data.sql` (datos)
+- Se eliminó `database/Base de Datos_BioAsistencia.sql` (duplicado de `bioasistencia.sql`)
+- Se agregó `Makefile` con comandos de construcción y gestión Docker
+
 ## Validaciones realizadas
 
 - Sintaxis PHP de todos los archivos.
@@ -22,7 +33,7 @@
 
 ## Integración de la base de datos oficial
 
-- Se incorporó `Base de Datos_BioAsistencia.sql` como fuente oficial.
+- Se incorporó la estructura de la base de datos como fuente oficial.
 - Se reemplazaron las copias anteriores de `database/bioasistencia.sql` y `docker/init.sql`.
 - Se corrigió el acceso inicial a `admin / Admin@2026`.
 - Se alinearon programa, ciclo, reportes y estados de asistencia con la estructura entregada.

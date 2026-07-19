@@ -1,0 +1,106 @@
+========================================
+CONFIGURACIÓN ARDUINO - PRODUCCIÓN
+========================================
+
+Reemplazar las variables de configuración del Arduino con las siguientes:
+
+----------------------------------------
+WIFI Y SERVIDOR
+----------------------------------------
+
+const char WIFI_SSID[] = "TU_WIFI";
+const char WIFI_PASS[] = "TU_CONTRASEÑA";
+const char SERVER_IP[] = "www.midominio.com";
+const int SERVER_PORT = 80;
+
+----------------------------------------
+URLS DE LA API
+----------------------------------------
+
+// Consultar estado del dispositivo
+String urlEstado = "http://www.midominio.com/api/consultar_estado.php";
+
+// Registrar asistencia (entrada/salida)
+String urlAsistencia = "http://www.midominio.com/api/registrar_asistencia.php";
+
+// Actualizar estado del dispositivo
+String urlEstadoDispositivo = "http://www.midominio.com/api/estado_dispositivo.php";
+
+----------------------------------------
+VARIABLES DE ENTorno (.env)
+----------------------------------------
+
+DB_NAME=bioasistencia
+DB_ROOT_PASS=tu_contraseña_segura
+ARDUINO_API_KEY=tu_clave_segura
+APP_URL=https://www.midominio.com
+
+----------------------------------------
+EJEMPLO COMPLETO (Arduino IDE)
+----------------------------------------
+
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
+
+// WiFi
+const char WIFI_SSID[] = "TU_WIFI";
+const char WIFI_PASS[] = "TU_CONTRASEÑA";
+
+// Servidor
+const char SERVER_IP[] = "www.midominio.com";
+const int SERVER_PORT = 80;
+const char API_KEY[] = "Bio#As$stenci4@100%";
+
+void setup() {
+  Serial.begin(9600);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi conectado");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    WiFiClient client;
+    
+    String url = "http://" + String(SERVER_IP) + ":" + String(SERVER_PORT) 
+                 + "/api/registrar_asistencia.php";
+    
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    
+    String postData = "clave=" + String(API_KEY) + "&id_sensor=1";
+    
+    int httpResponseCode = http.POST(postData);
+    
+    if (httpResponseCode > 0) {
+      String response = http.getString();
+      Serial.println(httpResponseCode);
+      Serial.println(response);
+    } else {
+      Serial.print("Error: ");
+      Serial.println(httpResponseCode);
+    }
+    
+    http.end();
+  }
+  
+  delay(30000);
+}
+
+----------------------------------------
+NOTAS
+----------------------------------------
+
+1. Para HTTPS (SSL), usar WiFiClientSecure y el puerto 443
+2. Cambiar "TU_WIFI" y "TU_CONTRASEÑA" por las credenciales reales
+3. Cambiar "www.midominio.com" por el dominio real del servidor
+4. El API_KEY debe coincidir con ARDUINO_API_KEY en .env
+5. Puerto 80 = HTTP, Puerto 443 = HTTPS
+6. Asegurar que el servidor tenga el firewall abierto en el puerto elegido
