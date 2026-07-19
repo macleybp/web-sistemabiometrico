@@ -64,7 +64,7 @@ $menuSidebar = $rolSidebar === 'Administrador' ? $menuAdministradorSidebar : $me
 <aside class="premium-sidebar">
     <div class="premium-sidebar-marca">
         <div class="premium-sidebar-logo">
-            <img src="/SISTEMA-BIOMETRICO/assets/img/logo.png" alt="BioAsistencia" class="logo-lateral">
+            <img src="<?php echo bio_sidebar_texto(app_url('assets/img/logo.png')); ?>" alt="BioAsistencia" class="logo-lateral">
         </div>
 
         <div class="premium-sidebar-nombre">
@@ -88,7 +88,7 @@ $menuSidebar = $rolSidebar === 'Administrador' ? $menuAdministradorSidebar : $me
         <span class="premium-menu-titulo">Navegación</span>
 
         <?php foreach ($menuSidebar as $item): ?>
-            <a href="<?php echo bio_sidebar_texto($item['url']); ?>" class="premium-menu-link <?php echo $item['key'] === $menuActual ? 'activo' : ''; ?>">
+            <a href="<?php echo bio_sidebar_texto(app_url('pages/' . $item['url'])); ?>" class="premium-menu-link <?php echo $item['key'] === $menuActual ? 'activo' : ''; ?>">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="<?php echo bio_sidebar_texto($item['icono']); ?>" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>

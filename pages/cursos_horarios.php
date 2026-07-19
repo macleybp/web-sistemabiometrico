@@ -344,7 +344,9 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Cursos y Horarios</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1004">
+    <link rel="icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="stylesheet" href="<?php echo app_url('assets/css/styles.css?v=9999'); ?>">
 </head>
 <body class="pagina-interna pagina-cursos">
 
@@ -367,10 +369,10 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
             </div>
 
             <div class="acciones-superiores">
-                <div class="indicador-dispositivo indicador-<?php echo escapar_cursos($claseEstadoDispositivo); ?>">
-                    <span class="punto-indicador"></span>
-                    <?php echo escapar_cursos($estadoDispositivo); ?>
-                </div>
+<div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
+    <span class="punto-indicador"></span>
+    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
+</div>
 
                 <div class="menu-usuario usuario-premium">
                     <div class="usuario-avatar">
@@ -380,7 +382,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                         <span class="nombre-usuario-superior"><?php echo escapar_cursos($nombreUsuario); ?></span>
                         <small><?php echo escapar_cursos($rol); ?></small>
                     </div>
-                    <a href="../logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
+                    <a href="<?php echo app_url('logout.php'); ?>" class="boton-cerrar-sesion">Cerrar Sesión</a>
                 </div>
             </div>
         </header>
@@ -403,7 +405,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                     <span class="hero-kicker">Malla académica y control de bloques</span>
                     <h2>Organiza cursos, docentes y horarios semanales.</h2>
                     <p>
-                        Administra la programación académica del IV Ciclo y mantén cada curso conectado
+                        Administra la programación académica del V Ciclo y mantén cada curso conectado
                         con su docente responsable y sus bloques de clase.
                     </p>
                 </div>
@@ -690,7 +692,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
 
     <?php if ($rol === 'Administrador'): ?>
         <div class="fondo-modal" id="fondoModalCurso" style="display:none;">
-            <div class="tarjeta-panel modal-formulario modal-premium">
+            <div class="tarjeta-panel modal-formulario modal-formulario-premium">
                 <div class="modal-cabecera-premium">
                     <span class="panel-kicker">Gestión de curso</span>
                     <h2 class="titulo-tarjeta-panel" id="tituloModalCurso">Registrar nuevo curso</h2>
@@ -730,7 +732,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
         </div>
 
         <div class="fondo-modal" id="fondoModalHorario" style="display:none;">
-            <div class="tarjeta-panel modal-formulario modal-premium">
+            <div class="tarjeta-panel modal-formulario modal-formulario-premium">
                 <div class="modal-cabecera-premium">
                     <span class="panel-kicker">Programación semanal</span>
                     <h2 class="titulo-tarjeta-panel" id="tituloModalHorario">Registrar nuevo horario</h2>
@@ -809,7 +811,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
         </div>
     <?php endif; ?>
 
-    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
+    <script src="<?php echo app_url('assets/js/main.js?v=9999'); ?>"></script>
     <script>
         function normalizarHora(valor) {
             if (!valor) {

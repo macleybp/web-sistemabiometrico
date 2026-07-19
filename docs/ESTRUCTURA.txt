@@ -1,0 +1,48 @@
+PROYECTO 2.0 — BIOASISTENCIA ESTRUCTURADO CON BASE OFICIAL
+
+CARPETAS
+
+api/        Comunicación con Arduino y estado biométrico
+assets/     CSS, JavaScript, logo e imágenes
+config/     Configuración general, rutas y conexión PDO
+database/   Base de datos oficial del sistema
+docker/     Archivos usados para iniciar MySQL y Apache
+exports/    Generación de reportes Excel
+includes/   Sesiones, funciones compartidas y menú
+pages/      Pantallas del sistema
+
+BASE DE DATOS
+
+Archivo oficial:
+database/Base de Datos_BioAsistencia.sql
+
+Copia de importación:
+database/bioasistencia.sql
+
+USUARIO INICIAL
+
+Usuario: admin
+Contraseña: Admin@2026
+
+DATOS ALINEADOS
+
+Programa: Computación e Informática
+Ciclo: V
+Periodo activo: V Ciclo 2026
+Estudiantes incluidos: 27
+
+EJECUCIÓN CON XAMPP
+
+1. Copiar la carpeta dentro de C:\xampp\htdocs\
+2. Encender Apache y MySQL
+3. Abrir phpMyAdmin
+4. Importar database/Base de Datos_BioAsistencia.sql
+5. Revisar config/conexion.php
+6. Abrir el proyecto desde localhost
+
+EJECUCIÓN CON DOCKER
+
+docker compose up -d --build
+
+Dirección:
+http://localhost:8080

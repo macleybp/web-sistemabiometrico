@@ -98,15 +98,27 @@ if (!$rolSeleccionado) {
 
 $nombreRolSeleccionado = $rolSeleccionado['nombre_rol'];
 
+if ($nombreRolSeleccionado === 'Docente') {
+    $consultaFichaDocente = $pdo->prepare(
+        "SELECT id_docente
+         FROM docentes
+         WHERE id_usuario = :id_usuario
+         LIMIT 1"
+    );
+
+    $consultaFichaDocente->execute([
+        'id_usuario' => $idUsuario
+    ]);
+
+    if ($idUsuario === 0 || !$consultaFichaDocente->fetch()) {
+        throw new Exception('Los usuarios docentes deben registrarse desde el módulo Docentes para guardar también su código y DNI.');
+    }
+}
+
 if ($idUsuario === $idUsuarioActual && $nombreRolSeleccionado !== 'Administrador') {
     throw new Exception('No puedes quitarte tu propio rol de Administrador.');
 }
-
-                if (!$validarRol->fetch()) {
-                    throw new Exception('El rol seleccionado no existe.');
-                }
-
-                $validarUsuario = $pdo->prepare(
+$validarUsuario = $pdo->prepare(
                     "SELECT id_usuario
                      FROM usuarios
                      WHERE usuario = :usuario
@@ -239,6 +251,17 @@ if ($idUsuario === $idUsuarioActual && $nombreRolSeleccionado !== 'Administrador
                     'id_usuario' => $idUsuario
                 ]);
 
+                $sincronizarDocente = $pdo->prepare(
+                    "UPDATE docentes
+                     SET estado = :estado
+                     WHERE id_usuario = :id_usuario"
+                );
+
+                $sincronizarDocente->execute([
+                    'estado' => $nuevoEstado,
+                    'id_usuario' => $idUsuario
+                ]);
+
                 $mensajeExito = $nuevoEstado === 'Activo'
                     ? 'Usuario activado correctamente.'
                     : 'Usuario desactivado correctamente.';
@@ -346,7 +369,9 @@ $menuAdministrador = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Usuarios</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1008">
+    <link rel="icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="stylesheet" href="<?php echo app_url('assets/css/styles.css?v=9999'); ?>">
 </head>
 <body class="pagina-interna pagina-usuarios">
 
@@ -363,14 +388,14 @@ $menuAdministrador = [
             </div>
 
             <div class="acciones-superiores">
-                <div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
-                    <span class="punto-indicador"></span>
-                    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
-                </div>
+<div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
+    <span class="punto-indicador"></span>
+    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
+</div>
 
                 <div class="menu-usuario">
                     <span class="nombre-usuario-superior"><?php echo htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <a href="../logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
+                    <a href="<?php echo app_url('logout.php'); ?>" class="boton-cerrar-sesion">Cerrar Sesión</a>
                 </div>
             </div>
         </header>
@@ -638,7 +663,7 @@ $menuAdministrador = [
         </div>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
+    <script src="<?php echo app_url('assets/js/main.js?v=9999'); ?>"></script>
     <script>
         function abrirModalUsuario(datos) {
             const titulo = document.getElementById('tituloModalUsuario');

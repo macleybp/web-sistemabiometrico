@@ -5,7 +5,7 @@ date_default_timezone_set('America/Lima');
 require_once __DIR__ . '/includes/auth.php';
 
 if (usuario_autenticado()) {
-    header('Location: pages/dashboard.php');
+    header('Location: ' . app_url('pages/dashboard.php'));
     exit;
 }
 
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             if (iniciar_sesion($pdo, $usuarioIngresado, $contrasenaIngresada, $recordarMarcado)) {
-                header('Location: pages/dashboard.php');
+                header('Location: ' . app_url('pages/dashboard.php'));
                 exit;
             }
 
@@ -41,7 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Iniciar Sesión</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=203">
+    <link rel="icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="stylesheet" href="<?php echo app_url('assets/css/styles.css?v=9999'); ?>">
 </head>
 <body class="pagina-login login-premium">
 
@@ -65,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="login-marca-principal">
                     <div class="login-logo-marco">
-                        <img src="/SISTEMA-BIOMETRICO/assets/img/logo.png" alt="BioAsistencia" class="login-logo">
+                        <img src="<?php echo app_url('assets/img/logo.png'); ?>" alt="BioAsistencia" class="login-logo">
                     </div>
 
                     <div class="login-marca-texto">
@@ -93,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="login-acceso-superior">
                     <div class="login-logo-secundario">
-                        <img src="/SISTEMA-BIOMETRICO/assets/img/logo.png" alt="BioAsistencia" class="login-logo-mini">
+                        <img src="<?php echo app_url('assets/img/logo.png'); ?>" alt="BioAsistencia" class="login-logo-mini">
                     </div>
 
                     <span class="login-chip-seguro">
@@ -110,14 +112,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <?php if ($mensajeError !== ''): ?>
                     <div class="login-alerta-error" role="alert">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" style="width:13px;height:13px;max-width:13px;max-height:13px;fill:currentColor;flex:0 0 13px;display:inline-block;">
                             <path d="M12 2 1 21h22L12 2Zm1 15h-2v-2h2v2Zm0-4h-2V8h2v5Z"/>
                         </svg>
                         <span><?php echo htmlspecialchars($mensajeError, ENT_QUOTES, 'UTF-8'); ?></span>
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="login.php" class="login-formulario" autocomplete="off">
+                <form method="POST" action="<?php echo app_url('login.php'); ?>" class="login-formulario" autocomplete="off">
 
                     <div class="login-campo">
                         <label for="usuario">Usuario</label>

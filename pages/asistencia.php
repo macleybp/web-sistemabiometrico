@@ -9,8 +9,8 @@ requerir_rol(['Administrador', 'Docente']);
 
 $rol = obtener_rol_usuario();
 $nombreUsuario = obtener_nombre_usuario();
-$estadoDispositivo = obtener_estado_dispositivo($pdo);
-$claseEstadoDispositivo = clase_estado_dispositivo($estadoDispositivo);
+$estadoDispositivoTexto = trim($estadoDispositivo ?? '');
+$claseEstadoDispositivo = ($estadoDispositivoTexto === 'Sistema Activo') ? 'sistema-activo' : 'estado-apagado';
 $mensajeExito = '';
 $mensajeError = '';
 
@@ -280,7 +280,9 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Asistencia</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1301">
+    <link rel="icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="stylesheet" href="<?php echo app_url('assets/css/styles.css?v=9999'); ?>">
 </head>
 <body class="pagina-interna pagina-asistencia premium-app">
 
@@ -303,14 +305,14 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
             </div>
 
             <div class="acciones-superiores topbar-actions">
-                <div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
-                    <span class="punto-indicador"></span>
-                    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
-                </div>
+<div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
+    <span class="punto-indicador"></span>
+    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
+</div>
 
                 <div class="menu-usuario user-pill">
                     <span class="nombre-usuario-superior"><?php echo htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <a href="../logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
+                    <a href="<?php echo app_url('logout.php'); ?>" class="boton-cerrar-sesion">Cerrar Sesión</a>
                 </div>
             </div>
         </header>
@@ -573,6 +575,6 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
         </main>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
+    <script src="<?php echo app_url('assets/js/main.js?v=9999'); ?>"></script>
 </body>
 </html>

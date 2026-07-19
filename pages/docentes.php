@@ -31,6 +31,27 @@ function obtener_id_rol_docente(PDO $pdo): int
     return (int) $rolDocente['id_rol'];
 }
 
+function generar_codigo_docente(PDO $pdo): string
+{
+    $consulta = $pdo->query(
+        "SELECT codigo_docente
+         FROM docentes
+         WHERE codigo_docente LIKE 'DOC%'
+         ORDER BY CAST(SUBSTRING(codigo_docente, 4) AS UNSIGNED) DESC
+         LIMIT 1"
+    );
+
+    $fila = $consulta->fetch();
+
+    if (!$fila) {
+        return 'DOC001';
+    }
+
+    $numero = (int) substr((string) $fila['codigo_docente'], 3);
+
+    return 'DOC' . str_pad((string) ($numero + 1), 3, '0', STR_PAD_LEFT);
+}
+
 function inicial_docente(string $texto): string
 {
     $texto = trim($texto);
@@ -72,6 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($accion === 'guardar') {
             $idDocente = (int) ($_POST['id_docente'] ?? 0);
             $idUsuario = (int) ($_POST['id_usuario'] ?? 0);
+            $codigoDocente = limpiar_texto($_POST['codigo_docente'] ?? '');
+            $dni = limpiar_texto($_POST['dni'] ?? '');
             $nombres = limpiar_texto($_POST['nombres'] ?? '');
             $apellidos = limpiar_texto($_POST['apellidos'] ?? '');
             $usuario = limpiar_texto($_POST['usuario'] ?? '');
@@ -81,8 +104,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $contrasena = $_POST['contrasena'] ?? '';
             $estado = limpiar_texto($_POST['estado'] ?? 'Activo');
 
-            if ($nombres === '' || $apellidos === '' || $usuario === '' || $correo === '' || $tituloCargo === '') {
+            if ($codigoDocente === '') {
+                $codigoDocente = generar_codigo_docente($pdo);
+            }
+
+            if ($dni === '' || $nombres === '' || $apellidos === '' || $usuario === '' || $correo === '' || $tituloCargo === '') {
                 $mensajeError = 'Completa los campos obligatorios.';
+            } elseif (!preg_match('/^[0-9]{8}$/', $dni)) {
+                $mensajeError = 'El DNI debe contener 8 números.';
             } elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                 $mensajeError = 'El correo institucional no es válido.';
             } elseif (!in_array($estado, ['Activo', 'Inactivo'], true)) {
@@ -162,16 +191,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $actualizarDocente = $pdo->prepare(
                         "UPDATE docentes
-                         SET titulo_cargo = :titulo_cargo,
+                         SET codigo_docente = :codigo_docente,
+                             nombres = :nombres,
+                             apellidos = :apellidos,
+                             dni = :dni,
+                             correo = :correo,
+                             telefono = :telefono,
+                             titulo_cargo = :titulo_cargo,
                              correo_institucional = :correo_institucional,
-                             whatsapp = :whatsapp
+                             whatsapp = :whatsapp,
+                             estado = :estado
                          WHERE id_docente = :id_docente"
                     );
 
                     $actualizarDocente->execute([
+                        'codigo_docente' => $codigoDocente,
+                        'nombres' => $nombres,
+                        'apellidos' => $apellidos,
+                        'dni' => $dni,
+                        'correo' => $correo,
+                        'telefono' => $whatsapp !== '' ? $whatsapp : null,
                         'titulo_cargo' => $tituloCargo,
                         'correo_institucional' => $correo,
                         'whatsapp' => $whatsapp !== '' ? $whatsapp : null,
+                        'estado' => $estado,
                         'id_docente' => $idDocente
                     ]);
 
@@ -200,16 +243,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $registrarDocente = $pdo->prepare(
                         "INSERT INTO docentes
-                         (id_usuario, titulo_cargo, correo_institucional, whatsapp)
+                         (id_usuario, codigo_docente, nombres, apellidos, dni, correo, telefono, titulo_cargo, correo_institucional, whatsapp, estado)
                          VALUES
-                         (:id_usuario, :titulo_cargo, :correo_institucional, :whatsapp)"
+                         (:id_usuario, :codigo_docente, :nombres, :apellidos, :dni, :correo, :telefono, :titulo_cargo, :correo_institucional, :whatsapp, :estado)"
                     );
 
                     $registrarDocente->execute([
                         'id_usuario' => $idUsuarioNuevo,
+                        'codigo_docente' => $codigoDocente,
+                        'nombres' => $nombres,
+                        'apellidos' => $apellidos,
+                        'dni' => $dni,
+                        'correo' => $correo,
+                        'telefono' => $whatsapp !== '' ? $whatsapp : null,
                         'titulo_cargo' => $tituloCargo,
                         'correo_institucional' => $correo,
-                        'whatsapp' => $whatsapp !== '' ? $whatsapp : null
+                        'whatsapp' => $whatsapp !== '' ? $whatsapp : null,
+                        'estado' => $estado
                     ]);
 
                     $mensajeExito = 'Docente registrado correctamente.';
@@ -232,6 +282,16 @@ if ($accion === 'desactivar') {
         );
 
         $consulta->execute([
+            'id_usuario' => $idUsuario
+        ]);
+
+        $consultaDocente = $pdo->prepare(
+            "UPDATE docentes
+             SET estado = 'Inactivo'
+             WHERE id_usuario = :id_usuario"
+        );
+
+        $consultaDocente->execute([
             'id_usuario' => $idUsuario
         ]);
 
@@ -266,6 +326,8 @@ if ($busqueda !== '') {
 $consultaDocentes = $pdo->prepare(
     "SELECT d.id_docente,
             d.id_usuario,
+            d.codigo_docente,
+            d.dni,
             d.titulo_cargo,
             d.correo_institucional,
             d.whatsapp,
@@ -282,6 +344,8 @@ $consultaDocentes = $pdo->prepare(
      $sqlBusqueda
      GROUP BY d.id_docente,
               d.id_usuario,
+              d.codigo_docente,
+              d.dni,
               d.titulo_cargo,
               d.correo_institucional,
               d.whatsapp,
@@ -332,7 +396,9 @@ $menuAdministrador = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Docentes</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1003">
+    <link rel="icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="stylesheet" href="<?php echo app_url('assets/css/styles.css?v=9999'); ?>">
 </head>
 <body class="pagina-interna pagina-premium modulo-docentes">
 
@@ -356,10 +422,10 @@ $menuAdministrador = [
             </div>
 
             <div class="acciones-superiores header-acciones">
-                <div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
-                    <span class="punto-indicador"></span>
-                    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
-                </div>
+<div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
+    <span class="punto-indicador"></span>
+    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
+</div>
 
                 <div class="usuario-premium">
                     <span class="avatar-usuario"><?php echo htmlspecialchars(iniciales_docente($nombreUsuario, ''), ENT_QUOTES, 'UTF-8'); ?></span>
@@ -369,7 +435,7 @@ $menuAdministrador = [
                     </div>
                 </div>
 
-                <a href="../logout.php" class="boton-cerrar-sesion boton-salir-premium">Cerrar Sesión</a>
+                <a href="<?php echo app_url('logout.php'); ?>" class="boton-cerrar-sesion boton-salir-premium">Cerrar Sesión</a>
             </div>
         </header>
 
@@ -568,7 +634,7 @@ $menuAdministrador = [
         </main>
     </div>
 
-    <div class="fondo-modal modal-premium" id="fondoModalDocente" style="display:none;">
+    <div class="fondo-modal" id="fondoModalDocente" style="display:none;">
         <div class="tarjeta-panel modal-formulario modal-formulario-premium">
             <div class="modal-cabecera-premium">
                 <div>
@@ -583,6 +649,16 @@ $menuAdministrador = [
                 <input type="hidden" name="accion" value="guardar">
                 <input type="hidden" name="id_docente" id="campoIdDocente" value="">
                 <input type="hidden" name="id_usuario" id="campoIdUsuario" value="">
+
+                <div class="grupo-campo">
+                    <label for="campoCodigoDocente">Código docente</label>
+                    <input type="text" name="codigo_docente" id="campoCodigoDocente" placeholder="Se genera automáticamente">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="campoDni">DNI</label>
+                    <input type="text" name="dni" id="campoDni" maxlength="8" inputmode="numeric" required>
+                </div>
 
                 <div class="grupo-campo">
                     <label for="campoNombres">Nombres</label>
@@ -635,12 +711,14 @@ $menuAdministrador = [
         </div>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
+    <script src="<?php echo app_url('assets/js/main.js?v=9999'); ?>"></script>
     <script>
         function abrirModalDocente(datos) {
             document.getElementById('tituloModalDocente').textContent = datos ? 'Editar docente' : 'Registrar nuevo docente';
             document.getElementById('campoIdDocente').value = datos ? datos.id_docente : '';
             document.getElementById('campoIdUsuario').value = datos ? datos.id_usuario : '';
+            document.getElementById('campoCodigoDocente').value = datos ? datos.codigo_docente : '';
+            document.getElementById('campoDni').value = datos ? datos.dni : '';
             document.getElementById('campoNombres').value = datos ? datos.nombres : '';
             document.getElementById('campoApellidos').value = datos ? datos.apellidos : '';
             document.getElementById('campoUsuario').value = datos ? datos.usuario : '';

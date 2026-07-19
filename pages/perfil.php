@@ -150,32 +150,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ((int) ($perfil['id_docente'] ?? 0) > 0) {
                         $actualizarDocente = $pdo->prepare(
                             "UPDATE docentes
-                             SET titulo_cargo = :titulo_cargo,
+                             SET nombres = :nombres,
+                                 apellidos = :apellidos,
+                                 correo = :correo,
+                                 telefono = :telefono,
+                                 titulo_cargo = :titulo_cargo,
                                  correo_institucional = :correo_institucional,
                                  whatsapp = :whatsapp
                              WHERE id_docente = :id_docente"
                         );
 
                         $actualizarDocente->execute([
+                            'nombres' => $nombres,
+                            'apellidos' => $apellidos,
+                            'correo' => $correo,
+                            'telefono' => $whatsapp !== '' ? $whatsapp : null,
                             'titulo_cargo' => $tituloCargo !== '' ? $tituloCargo : 'Docente',
                             'correo_institucional' => $correo,
                             'whatsapp' => $whatsapp !== '' ? $whatsapp : null,
                             'id_docente' => (int) $perfil['id_docente']
                         ]);
                     } else {
-                        $registrarDocente = $pdo->prepare(
-                            "INSERT INTO docentes
-                             (id_usuario, titulo_cargo, correo_institucional, whatsapp)
-                             VALUES
-                             (:id_usuario, :titulo_cargo, :correo_institucional, :whatsapp)"
-                        );
-
-                        $registrarDocente->execute([
-                            'id_usuario' => $idUsuarioPerfil,
-                            'titulo_cargo' => $tituloCargo !== '' ? $tituloCargo : 'Docente',
-                            'correo_institucional' => $correo,
-                            'whatsapp' => $whatsapp !== '' ? $whatsapp : null
-                        ]);
+                        throw new Exception('La cuenta no tiene una ficha docente completa. El administrador debe registrarla desde el módulo Docentes.');
                     }
                 }
 
@@ -314,7 +310,9 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Perfil</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=3002">
+    <link rel="icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="stylesheet" href="<?php echo app_url('assets/css/styles.css?v=9999'); ?>">
 </head>
 <body class="pagina-interna">
 
@@ -340,7 +338,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                     <span class="nombre-usuario-superior">
                         <?php echo htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?>
                     </span>
-                    <a href="../logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
+                    <a href="<?php echo app_url('logout.php'); ?>" class="boton-cerrar-sesion">Cerrar Sesión</a>
                 </div>
             </div>
         </header>
@@ -640,6 +638,6 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
         </main>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
+    <script src="<?php echo app_url('assets/js/main.js?v=9999'); ?>"></script>
 </body>
 </html>

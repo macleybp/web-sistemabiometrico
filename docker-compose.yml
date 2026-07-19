@@ -1,44 +1,41 @@
 services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        APP_VERSION: ${APP_VERSION:-1.0.0}
-    container_name: bioasistencia-web
-    ports:
-      - "8080:80"
-    volumes:
-      - .:/var/www/html
-    environment:
-      - APP_VERSION=${APP_VERSION:-1.0.0}
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_NAME=bioasistencia
-      - DB_USER=root
-      - DB_PASS=123456
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-
   db:
     image: mysql:8.0
     container_name: bioasistencia-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-123456}
+      MYSQL_DATABASE: ${DB_NAME:-bioasistencia}
+      TZ: America/Lima
     ports:
       - "3307:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: bioasistencia
     volumes:
-      - db_data:/var/lib/mysql
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - bioasistencia_db:/var/lib/mysql
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/01-bioasistencia.sql:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASS:-123456}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 15
+
+  web:
+    build: .
+    container_name: bioasistencia-web
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-bioasistencia}
+      DB_USER: root
+      DB_PASS: ${DB_ROOT_PASS:-123456}
+      ARDUINO_API_KEY: "${ARDUINO_API_KEY:-}"
+      APP_URL: ""
+      TZ: America/Lima
+    ports:
+      - "8080:80"
 
 volumes:
-  db_data:
+  bioasistencia_db:

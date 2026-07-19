@@ -66,8 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $rol === 'Administrador') {
             $codigo = limpiar_texto($_POST['codigo_estudiante'] ?? '');
             $nombres = limpiar_texto($_POST['nombres'] ?? '');
             $apellidos = limpiar_texto($_POST['apellidos'] ?? '');
-            $programa = limpiar_texto($_POST['programa_estudios'] ?? 'Informática Empresarial');
-            $ciclo = limpiar_texto($_POST['ciclo'] ?? 'IV Ciclo');
+            $programa = limpiar_texto($_POST['programa_estudios'] ?? 'Computación e Informática');
+            $ciclo = limpiar_texto($_POST['ciclo'] ?? 'V');
             $whatsapp = limpiar_texto($_POST['whatsapp'] ?? '');
             $correo = limpiar_texto($_POST['correo_institucional'] ?? '');
             $idSensor = limpiar_texto($_POST['id_sensor'] ?? '');
@@ -335,7 +335,9 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Estudiantes</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1003">
+    <link rel="icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="stylesheet" href="<?php echo app_url('assets/css/styles.css?v=9999'); ?>">
 </head>
 <body class="pagina-interna pagina-premium pagina-estudiantes">
 
@@ -361,10 +363,10 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                 </div>
 
                 <div class="acciones-superiores acciones-premium">
-                    <div class="indicador-dispositivo indicador-<?php echo texto_seguro($claseEstadoDispositivo); ?>">
-                        <span class="punto-indicador"></span>
-                        <?php echo texto_seguro($estadoDispositivo); ?>
-                    </div>
+<div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
+    <span class="punto-indicador"></span>
+    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
+</div>
 
                     <div class="usuario-topbar">
                         <div class="usuario-topbar-avatar">
@@ -377,7 +379,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                         </div>
                     </div>
 
-                    <a href="../logout.php" class="boton-cerrar-sesion boton-salida-premium">Cerrar Sesión</a>
+                    <a href="<?php echo app_url('logout.php'); ?>" class="boton-cerrar-sesion boton-salida-premium">Cerrar Sesión</a>
                 </div>
             </header>
 
@@ -588,7 +590,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
     </div>
 
     <?php if ($rol === 'Administrador'): ?>
-        <div class="fondo-modal modal-premium" id="fondoModalEstudiante" style="display:none;">
+        <div class="fondo-modal" id="fondoModalEstudiante" style="display:none;">
             <div class="tarjeta-panel modal-formulario modal-formulario-premium">
                 <div class="modal-cabecera-premium">
                     <div>
@@ -626,14 +628,14 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                     <div class="grupo-campo">
                         <label for="campoPrograma">Programa de estudios</label>
                         <select name="programa_estudios" id="campoPrograma">
-                            <option value="Informática Empresarial">Informática Empresarial</option>
+                            <option value="Computación e Informática">Computación e Informática</option>
                         </select>
                     </div>
 
                     <div class="grupo-campo">
                         <label for="campoCiclo">Ciclo</label>
                         <select name="ciclo" id="campoCiclo">
-                            <option value="IV Ciclo">IV Ciclo</option>
+                            <option value="V">V Ciclo</option>
                         </select>
                     </div>
 
@@ -674,7 +676,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
         </div>
     <?php endif; ?>
 
-    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
+    <script src="<?php echo app_url('assets/js/main.js?v=9999'); ?>"></script>
     <script>
         function abrirModalEstudiante(datos) {
             document.getElementById('tituloModalEstudiante').textContent = datos ? 'Editar estudiante' : 'Registrar nuevo estudiante';
@@ -682,8 +684,8 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
             document.getElementById('campoCodigo').value = datos ? datos.codigo_estudiante : '';
             document.getElementById('campoNombres').value = datos ? datos.nombres : '';
             document.getElementById('campoApellidos').value = datos ? datos.apellidos : '';
-            document.getElementById('campoPrograma').value = datos ? datos.programa_estudios : 'Informática Empresarial';
-            document.getElementById('campoCiclo').value = datos ? datos.ciclo : 'IV Ciclo';
+            document.getElementById('campoPrograma').value = datos ? datos.programa_estudios : 'Computación e Informática';
+            document.getElementById('campoCiclo').value = datos ? datos.ciclo : 'V';
             document.getElementById('campoWhatsapp').value = datos && datos.whatsapp ? datos.whatsapp : '';
             document.getElementById('campoCorreo').value = datos && datos.correo_institucional ? datos.correo_institucional : '';
             document.getElementById('campoIdHuella').value = datos && datos.id_huella ? datos.id_huella : '';

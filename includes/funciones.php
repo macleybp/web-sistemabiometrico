@@ -13,46 +13,50 @@ function obtener_estado_dispositivo(PDO $pdo): string
 {
     try {
         $consulta = $pdo->query(
-            "SELECT estado_biometrico
+            "SELECT estado_biometrico,
+                    TIMESTAMPDIFF(SECOND, fecha_actualizacion, NOW()) AS segundos_sin_senal
              FROM estado_dispositivo
              ORDER BY id_estado DESC
              LIMIT 1"
         );
 
-        $estado = $consulta->fetchColumn();
+        $estado = $consulta->fetch();
 
         if (!$estado) {
             return 'Estado Apagado';
         }
 
-        return (string) $estado;
+        $segundosSinSenal = (int) ($estado['segundos_sin_senal'] ?? 9999);
+
+        if ($estado['estado_biometrico'] === 'Sistema Activo' && $segundosSinSenal <= 30) {
+            return 'Sistema Activo';
+        }
+
+        return 'Estado Apagado';
     } catch (Throwable $e) {
-        return 'Sin Conexión';
+        return 'Estado Apagado';
     }
 }
 
+
 function clase_estado_dispositivo(string $estado): string
 {
-    $estadoNormalizado = mb_strtolower($estado, 'UTF-8');
-
-    if (str_contains($estadoNormalizado, 'activo')) {
-        return 'sistema-activo';
-    }
-
-    if (str_contains($estadoNormalizado, 'apagado')) {
-        return 'estado-apagado';
-    }
+    $estado = trim($estado);
+    $estadoNormalizado = function_exists('mb_strtolower')
+        ? mb_strtolower($estado, 'UTF-8')
+        : strtolower($estado);
 
     if (
-        str_contains($estadoNormalizado, 'sin conexión') ||
-        str_contains($estadoNormalizado, 'sin conexion') ||
-        str_contains($estadoNormalizado, 'desconectado')
+        $estadoNormalizado === 'sistema activo' ||
+        $estadoNormalizado === 'activo' ||
+        $estadoNormalizado === 'conectado'
     ) {
-        return 'sin-conexion';
+        return 'sistema-activo';
     }
 
     return 'estado-apagado';
 }
+
 
 function formatear_fecha(?string $fecha): string
 {
@@ -159,7 +163,7 @@ function obtener_estadisticas_dashboard(PDO $pdo): array
             "SELECT COUNT(*) AS total
              FROM asistencias
              WHERE fecha = :fecha
-             AND estado_entrada = 'Falto'"
+             AND estado_entrada IN ('Falto', 'Falta')"
         );
 
         $consulta->execute([
@@ -178,7 +182,7 @@ function obtener_estadisticas_dashboard(PDO $pdo): array
              WHERE fecha = :fecha
              AND hora_entrada IS NOT NULL
              AND hora_salida IS NULL
-             AND estado_salida IN ('Pendiente', 'Salida pendiente')"
+             AND estado_salida IN ('Sin registro de salida', 'Pendiente', 'Salida pendiente')"
         );
 
         $consulta->execute([

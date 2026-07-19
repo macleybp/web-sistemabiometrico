@@ -515,13 +515,20 @@ body.pagina-login::before {
 
 .login-alerta-error {
     margin-bottom: 12px;
-    padding: 12px;
+    padding: 10px 12px;
     border-radius: 14px;
     background: rgba(127, 29, 29, 0.26);
     border: 1px solid rgba(251, 113, 133, 0.34);
     color: #ffe4e6;
-    font-size: 0.82rem;
+    font-size: 0.74rem;
     font-weight: 800;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 body.pagina-dashboard,
@@ -856,29 +863,43 @@ body.pagina-interna.dashboard-premium {
     font-weight: 900;
 }
 
-.premium-system-pill span {
+.premium-system-pill span,
+.premium-system-pill .punto-indicador {
     width: 8px;
     height: 8px;
+    min-width: 8px;
     border-radius: 999px;
-    background: #f59e0b;
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.75);
+    display: inline-block;
 }
 
-.indicador-activo span,
-.indicador-sistema-activo span,
-.indicador-online span {
+.premium-system-pill.indicador-sistema-activo span,
+.premium-system-pill.indicador-activo span,
+.premium-system-pill.indicador-online span {
     background: #22c55e;
     box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
 }
 
-.indicador-apagado span,
-.indicador-estado-apagado span {
+.indicador-apagado .punto-indicador,
+.indicador-estado-apagado .punto-indicador {
     background: #f59e0b;
     box-shadow: 0 0 10px rgba(245, 158, 11, 0.75);
 }
 
-.indicador-desconectado span,
-.indicador-sin-conexion span {
+.indicador-activo .punto-indicador,
+.indicador-sistema-activo .punto-indicador,
+.indicador-online .punto-indicador {
+    background: #22c55e !important;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.8) !important;
+}
+
+.indicador-apagado .punto-indicador,
+.indicador-estado-apagado .punto-indicador {
+    background: #f59e0b !important;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.75) !important;
+}
+
+.indicador-desconectado .punto-indicador,
+.indicador-sin-conexion .punto-indicador {
     background: #ef4444;
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
 }
@@ -2011,6 +2032,19 @@ body.pagina-premium {
     font-weight: 900;
 }
 
+.indicador-dispositivo span:not(.punto-indicador),
+.indicador-dispositivo .texto-indicador {
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    display: inline !important;
+    padding: 0 !important;
+    color: inherit !important;
+}
+
 .punto-indicador {
     width: 8px;
     height: 8px;
@@ -2024,7 +2058,7 @@ body.pagina-premium {
 .indicador-sistema-activo .punto-indicador,
 .indicador-online .punto-indicador {
     background: #22c55e;
-    box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    box-shadow: none;
 }
 
 .indicador-apagado .punto-indicador,
@@ -4050,7 +4084,19 @@ body.pagina-asistencia .indicador-dispositivo {
     font-weight: 900 !important;
 }
 
-body.pagina-asistencia .punto-indicador {
+body.pagina-asistencia .indicador-sistema-activo .punto-indicador,
+body.pagina-asistencia .indicador-activo .punto-indicador,
+body.pagina-asistencia .indicador-online .punto-indicador {
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px !important;
+    border-radius: 999px !important;
+    background: #22c55e !important;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.8) !important;
+}
+
+body.pagina-asistencia .indicador-estado-apagado .punto-indicador,
+body.pagina-asistencia .indicador-apagado .punto-indicador {
     width: 8px !important;
     height: 8px !important;
     min-width: 8px !important;
@@ -5149,7 +5195,7 @@ body.pagina-reportes .indicador-dispositivo {
     font-weight: 900 !important;
 }
 
-body.pagina-reportes .punto-indicador {
+body.pagina-reportes .indicador-estado-apagado .punto-indicador {
     width: 8px !important;
     height: 8px !important;
     min-width: 8px !important;
@@ -6211,7 +6257,7 @@ body.pagina-alertas .indicador-dispositivo {
     font-weight: 900 !important;
 }
 
-body.pagina-alertas .punto-indicador {
+body.pagina-alertas .indicador-estado-apagado .punto-indicador {
     width: 8px !important;
     height: 8px !important;
     min-width: 8px !important;
@@ -7523,7 +7569,7 @@ body.pagina-usuarios .indicador-dispositivo {
     font-weight: 900 !important;
 }
 
-body.pagina-usuarios .punto-indicador {
+body.pagina-usuarios .indicador-estado-apagado .punto-indicador {
     width: 8px !important;
     height: 8px !important;
     min-width: 8px !important;
@@ -8792,7 +8838,7 @@ body.pagina-configuracion .indicador-dispositivo {
     font-weight: 900 !important;
 }
 
-body.pagina-configuracion .punto-indicador {
+body.pagina-configuracion .indicador-estado-apagado .punto-indicador {
     width: 8px !important;
     height: 8px !important;
     min-width: 8px !important;

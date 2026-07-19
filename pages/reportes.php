@@ -173,7 +173,9 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Reportes</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=1006">
+    <link rel="icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="stylesheet" href="<?php echo app_url('assets/css/styles.css?v=9999'); ?>">
 </head>
 <body class="pagina-interna pagina-premium pagina-reportes">
 
@@ -198,10 +200,10 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
             </div>
 
             <div class="acciones-superiores">
-                <div class="indicador-dispositivo indicador-<?php echo texto_seguro($claseEstadoDispositivo); ?>">
-                    <span class="punto-indicador"></span>
-                    <?php echo texto_seguro($estadoDispositivo); ?>
-                </div>
+<div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
+    <span class="punto-indicador"></span>
+    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
+</div>
 
                 <div class="usuario-premium">
                     <div class="avatar-usuario-premium">
@@ -213,7 +215,7 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
                         <small><?php echo texto_seguro($rol); ?></small>
                     </div>
 
-                    <a href="../logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
+                    <a href="<?php echo app_url('logout.php'); ?>" class="boton-cerrar-sesion">Cerrar Sesión</a>
                 </div>
             </div>
         </header>
@@ -502,6 +504,6 @@ $menuActivo = $rol === 'Administrador' ? $menuAdministrador : $menuDocente;
         </main>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
+    <script src="<?php echo app_url('assets/js/main.js?v=9999'); ?>"></script>
 </body>
 </html>

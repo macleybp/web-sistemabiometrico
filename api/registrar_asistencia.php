@@ -14,7 +14,63 @@ function responder_api(array $datos, int $codigoHttp = 200): void
     exit;
 }
 
+function validar_clave_arduino(): void
+{
+    $claveSecretaArduino = clave_api_arduino();
+    $claveRecibida = $_POST['clave'] ?? $_GET['clave'] ?? '';
+
+    if (!hash_equals($claveSecretaArduino, (string) $claveRecibida)) {
+        responder_api([
+            'estado' => 'error',
+            'tipo' => 'acceso_no_autorizado',
+            'mensaje' => 'Acceso no autorizado',
+            'lcd_linea_1' => 'Acceso denegado',
+            'lcd_linea_2' => 'Clave invalida',
+            'led' => 'rojo',
+            'pitidos' => 2
+        ], 401);
+    }
+}
+
+validar_clave_arduino();
+
+$diasSemana = [
+    1 => 'Lunes',
+    2 => 'Martes',
+    3 => 'Miércoles',
+    4 => 'Jueves',
+    5 => 'Viernes',
+    6 => 'Sábado',
+    7 => 'Domingo'
+];
+
+$diaHoy = $diasSemana[(int) date('N')];
+
+$consultaHorario = $pdo->prepare("
+    SELECT COUNT(*) 
+    FROM horarios 
+    WHERE dia_semana = ?
+    AND tipo_actividad = 'Clase'
+    AND estado = 'Activo'
+");
+
+$consultaHorario->execute([$diaHoy]);
+$hayClaseHoy = (int) $consultaHorario->fetchColumn();
+
+if ($hayClaseHoy <= 0) {
+    responder_api([
+        'estado' => 'error',
+        'tipo' => 'dia_no_laborable',
+        'mensaje' => 'Hoy no hay clases programadas',
+        'lcd_linea_1' => 'Dia no laborable',
+        'lcd_linea_2' => 'No se registra',
+        'led' => 'rojo',
+        'pitidos' => 2
+    ]);
+}
+
 function obtener_parametro_sensor(): int
+
 {
     $valor = $_POST['id_sensor']
         ?? $_GET['id_sensor']
@@ -125,6 +181,11 @@ function segundos_hora_api(string $hora): int
     return ($horas * 3600) + ($minutos * 60) + $segundos;
 }
 
+function diferencia_segundos_hora_api(string $horaMayor, string $horaMenor): int
+{
+    return segundos_hora_api($horaMayor) - segundos_hora_api($horaMenor);
+}
+
 function actualizar_estado_dispositivo_api(PDO $pdo, string $mensaje): void
 {
     try {
@@ -212,8 +273,12 @@ try {
         responder_api([
             'estado' => 'error',
             'tipo' => 'huella_no_registrada',
-            'mensaje' => 'No existe estudiante activo para el ID de sensor enviado',
-            'id_sensor' => $idSensor
+            'mensaje' => 'Huella no registrada',
+            'id_sensor' => $idSensor,
+            'lcd_linea_1' => 'Huella no',
+            'lcd_linea_2' => 'registrada',
+            'led' => 'rojo',
+            'pitidos' => 2
         ]);
     }
 
@@ -223,6 +288,7 @@ try {
     $horaEntradaOficial = obtener_configuracion_api($pdo, 'hora_entrada_oficial', '14:00');
     $horaSalidaOficial = obtener_configuracion_api($pdo, 'hora_salida_oficial', '19:00');
     $toleranciaMinutos = (int) obtener_configuracion_api($pdo, 'tolerancia_minutos', '0');
+    $segundosAntiDuplicado = 180;
 
     $opcionesEstadoEntrada = obtener_valores_enum_api($pdo, 'asistencias', 'estado_entrada');
     $opcionesEstadoSalida = obtener_valores_enum_api($pdo, 'asistencias', 'estado_salida');
@@ -280,19 +346,45 @@ try {
 
         responder_api([
             'estado' => 'ok',
-            'tipo' => 'entrada',
-            'mensaje' => 'Entrada registrada correctamente',
+            'tipo' => 'asistencia',
+            'mensaje' => 'Asistencia Registrada',
             'id_sensor' => $idSensor,
             'id_estudiante' => (int) $estudiante['id_estudiante'],
             'codigo_estudiante' => $estudiante['codigo_estudiante'],
             'estudiante' => trim($estudiante['nombres'] . ' ' . $estudiante['apellidos']),
             'fecha' => $fechaHoy,
             'hora' => $horaActual,
-            'estado_entrada' => $estadoEntrada
+            'estado_entrada' => $estadoEntrada,
+            'lcd_linea_1' => 'Asistencia',
+            'lcd_linea_2' => 'Registrada',
+            'led' => 'verde',
+            'pitidos' => 1
         ]);
     }
 
     if ($asistencia['hora_salida'] === null || $asistencia['hora_salida'] === '') {
+        $horaEntradaRegistrada = (string) ($asistencia['hora_entrada'] ?? '');
+
+        if ($horaEntradaRegistrada !== '' && diferencia_segundos_hora_api($horaActual, $horaEntradaRegistrada) >= 0 && diferencia_segundos_hora_api($horaActual, $horaEntradaRegistrada) < $segundosAntiDuplicado) {
+            actualizar_estado_dispositivo_api($pdo, 'Huella repetida: ' . $estudiante['nombres'] . ' ' . $estudiante['apellidos'] . ' - ID sensor ' . $idSensor);
+
+            responder_api([
+                'estado' => 'ok',
+                'tipo' => 'huella_repetida',
+                'mensaje' => 'Huella ya registrada. Retire su dedo.',
+                'id_sensor' => $idSensor,
+                'id_estudiante' => (int) $estudiante['id_estudiante'],
+                'codigo_estudiante' => $estudiante['codigo_estudiante'],
+                'estudiante' => trim($estudiante['nombres'] . ' ' . $estudiante['apellidos']),
+                'fecha' => $fechaHoy,
+                'hora_entrada' => $asistencia['hora_entrada'],
+                'lcd_linea_1' => 'Huella ya reg.',
+                'lcd_linea_2' => 'Retire dedo',
+                'led' => 'rojo',
+                'pitidos' => 2
+            ]);
+        }
+
         $registrarSalida = $pdo->prepare(
             "UPDATE asistencias
              SET hora_salida = :hora_salida,
@@ -312,17 +404,24 @@ try {
 
         actualizar_estado_dispositivo_api($pdo, 'Salida registrada: ' . $estudiante['nombres'] . ' ' . $estudiante['apellidos'] . ' - ID sensor ' . $idSensor);
 
+        $tipoSalidaRespuesta = $estadoSalida === 'Salida Anticipada' ? 'salida_anticipada' : 'salida';
+        $mensajeSalidaRespuesta = $estadoSalida === 'Salida Anticipada' ? 'Salida Anticipada' : 'Salida Registrada';
+
         responder_api([
             'estado' => 'ok',
-            'tipo' => 'salida',
-            'mensaje' => 'Salida registrada correctamente',
+            'tipo' => $tipoSalidaRespuesta,
+            'mensaje' => $mensajeSalidaRespuesta,
             'id_sensor' => $idSensor,
             'id_estudiante' => (int) $estudiante['id_estudiante'],
             'codigo_estudiante' => $estudiante['codigo_estudiante'],
             'estudiante' => trim($estudiante['nombres'] . ' ' . $estudiante['apellidos']),
             'fecha' => $fechaHoy,
             'hora' => $horaActual,
-            'estado_salida' => $estadoSalida
+            'estado_salida' => $estadoSalida,
+            'lcd_linea_1' => $mensajeSalidaRespuesta,
+            'lcd_linea_2' => substr(trim($estudiante['nombres'] . ' ' . $estudiante['apellidos']), 0, 16),
+            'led' => 'verde',
+            'pitidos' => 1
         ]);
     }
 
@@ -330,20 +429,29 @@ try {
 
     responder_api([
         'estado' => 'ok',
-        'tipo' => 'ya_registrado',
-        'mensaje' => 'El estudiante ya tiene entrada y salida registradas para hoy',
+        'tipo' => 'asistencia_completa',
+        'mensaje' => 'Asistencia completa. Retire su dedo.',
         'id_sensor' => $idSensor,
         'id_estudiante' => (int) $estudiante['id_estudiante'],
         'codigo_estudiante' => $estudiante['codigo_estudiante'],
         'estudiante' => trim($estudiante['nombres'] . ' ' . $estudiante['apellidos']),
         'fecha' => $fechaHoy,
         'hora_entrada' => $asistencia['hora_entrada'],
-        'hora_salida' => $asistencia['hora_salida']
+        'hora_salida' => $asistencia['hora_salida'],
+        'lcd_linea_1' => 'Asistencia',
+        'lcd_linea_2' => 'completa',
+        'led' => 'rojo',
+        'pitidos' => 2
     ]);
 } catch (Throwable $e) {
     responder_api([
         'estado' => 'error',
+        'tipo' => 'error_servidor',
         'mensaje' => 'No se pudo registrar la asistencia',
-        'detalle' => $e->getMessage()
+        'detalle' => $e->getMessage(),
+        'lcd_linea_1' => 'Error sistema',
+        'lcd_linea_2' => 'Revise conexion',
+        'led' => 'rojo',
+        'pitidos' => 2
     ], 500);
 }

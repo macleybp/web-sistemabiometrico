@@ -127,7 +127,7 @@ $filasXml = '';
 $numeroFila = 1;
 
 $filasXml .= '<row r="' . $numeroFila . '" ht="28" customHeight="1">';
-$filasXml .= construir_celda_xml('A', $numeroFila, 'Reporte de Asistencias - Informática Empresarial IV Ciclo', 1);
+$filasXml .= construir_celda_xml('A', $numeroFila, 'Reporte de Asistencias - Computación e Informática V Ciclo', 1);
 $filasXml .= '</row>';
 $numeroFila++;
 
@@ -336,7 +336,7 @@ if (!class_exists('ZipArchive')) {
     exit;
 }
 
-$nombreArchivo = 'Reporte_Asistencias_Informatica Empresarial IV Ciclo.xlsx';
+$nombreArchivo = 'Reporte_Asistencias_Computacion e Informatica V Ciclo.xlsx';
 $rutaTemporal = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid('bioasistencia_', true) . '.xlsx';
 
 $archivoZip = new ZipArchive();

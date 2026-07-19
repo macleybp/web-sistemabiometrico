@@ -183,8 +183,8 @@ try {
     guardar_configuracion($pdo, 'tolerancia_minutos', obtener_configuracion($pdo, 'tolerancia_minutos', '0'), 'Minutos de tolerancia antes de considerar tardanza.');
     guardar_configuracion($pdo, 'porcentaje_alerta', obtener_configuracion($pdo, 'porcentaje_alerta', '30'), 'Porcentaje de inasistencias para activar alerta crítica.');
     guardar_configuracion($pdo, 'nombre_institucion', obtener_configuracion($pdo, 'nombre_institucion', 'IESTP Ciro Alegría Bazán'), 'Nombre de la institución que se muestra en el sistema.');
-    guardar_configuracion($pdo, 'programa_estudios_default', obtener_configuracion($pdo, 'programa_estudios_default', 'Informática Empresarial'), 'Programa de estudios usado como valor predeterminado.');
-    guardar_configuracion($pdo, 'ciclo_default', obtener_configuracion($pdo, 'ciclo_default', 'IV Ciclo'), 'Ciclo académico usado como valor predeterminado.');
+    guardar_configuracion($pdo, 'programa_estudios_default', obtener_configuracion($pdo, 'programa_estudios_default', 'Computación e Informática'), 'Programa de estudios usado como valor predeterminado.');
+    guardar_configuracion($pdo, 'ciclo_default', obtener_configuracion($pdo, 'ciclo_default', 'V'), 'Ciclo académico usado como valor predeterminado.');
     guardar_configuracion($pdo, 'modo_notificacion', obtener_configuracion($pdo, 'modo_notificacion', 'API'), 'Modo de envío de alertas mediante API real.');
 } catch (Throwable $e) {
     $mensajeError = 'No se pudo preparar la configuración inicial del sistema.';
@@ -310,8 +310,8 @@ $horaSalidaOficial = obtener_configuracion($pdo, 'hora_salida_oficial', '19:00')
 $toleranciaMinutos = obtener_configuracion($pdo, 'tolerancia_minutos', '0');
 $porcentajeAlerta = obtener_configuracion($pdo, 'porcentaje_alerta', '30');
 $nombreInstitucion = obtener_configuracion($pdo, 'nombre_institucion', 'IESTP Ciro Alegría Bazán');
-$programaDefault = obtener_configuracion($pdo, 'programa_estudios_default', 'Informática Empresarial');
-$cicloDefault = obtener_configuracion($pdo, 'ciclo_default', 'IV Ciclo');
+$programaDefault = obtener_configuracion($pdo, 'programa_estudios_default', 'Computación e Informática');
+$cicloDefault = obtener_configuracion($pdo, 'ciclo_default', 'V');
 $modoNotificacion = obtener_configuracion($pdo, 'modo_notificacion', 'API');
 if ($modoNotificacion === 'API') {
     $modoNotificacion = 'API';
@@ -345,7 +345,9 @@ $menuAdministrador = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioAsistencia - Configuración</title>
-    <link rel="stylesheet" href="/SISTEMA-BIOMETRICO/assets/css/styles.css?v=3001">
+    <link rel="icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?php echo app_url('assets/img/logo.png?v=1'); ?>">
+    <link rel="stylesheet" href="<?php echo app_url('assets/css/styles.css?v=9999'); ?>">
 </head>
 <body class="pagina-interna pagina-configuracion">
 
@@ -362,14 +364,14 @@ $menuAdministrador = [
             </div>
 
             <div class="acciones-superiores">
-                <div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
-                    <span class="punto-indicador"></span>
-                    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
-                </div>
+<div class="indicador-dispositivo indicador-<?php echo htmlspecialchars($claseEstadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>">
+    <span class="punto-indicador"></span>
+    <?php echo htmlspecialchars($estadoDispositivo, ENT_QUOTES, 'UTF-8'); ?>
+</div>
 
                 <div class="menu-usuario">
                     <span class="nombre-usuario-superior"><?php echo htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <a href="../logout.php" class="boton-cerrar-sesion">Cerrar Sesión</a>
+                    <a href="<?php echo app_url('logout.php'); ?>" class="boton-cerrar-sesion">Cerrar Sesión</a>
                 </div>
             </div>
         </header>
@@ -611,6 +613,6 @@ $menuAdministrador = [
         </main>
     </div>
 
-    <script src="/SISTEMA-BIOMETRICO/assets/js/main.js?v=50"></script>
+    <script src="<?php echo app_url('assets/js/main.js?v=9999'); ?>"></script>
 </body>
 </html>

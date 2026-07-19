@@ -127,7 +127,7 @@ function usuario_autenticado(): bool
 function requerir_sesion(): void
 {
     if (!usuario_autenticado()) {
-        header('Location: ../login.php');
+        header('Location: ' . app_url('login.php'));
         exit;
     }
 }

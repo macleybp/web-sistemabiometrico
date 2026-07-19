@@ -1,7 +1,17 @@
+const BIOASISTENCIA_BASE_URL = (() => {
+    const scriptActual = document.currentScript;
+
+    if (!scriptActual || !scriptActual.src) {
+        return '';
+    }
+
+    return new URL('../../', scriptActual.src).pathname.replace(/\/$/, '');
+})();
+
 'use strict';
 
 (function () {
-    const INTERVALO_ESTADO_MS = 15000;
+    const INTERVALO_ESTADO_MS = 5000;
     const TIEMPO_LIMITE_PETICION_MS = 8000;
     const DURACION_MENSAJE_MS = 5200;
     const DURACION_TRANSICION_MS = 260;
@@ -9,12 +19,7 @@
 
     const ESTADOS_DISPOSITIVO = {
         'Sistema Activo': 'sistema-activo',
-        'Estado Apagado': 'estado-apagado',
-        'Sin Conexión': 'sin-conexion',
-        'Sin Conexion': 'sin-conexion',
-        'Desconectado': 'sin-conexion',
-        'Apagado': 'estado-apagado',
-        'Activo': 'sistema-activo'
+        'Estado Apagado': 'estado-apagado'
     };
 
     const ICONOS_MENSAJE = {
@@ -155,9 +160,8 @@
             return;
         }
 
-        const estadoSeguro = estado || 'Sin Conexión';
-        const claseEstado = ESTADOS_DISPOSITIVO[estadoSeguro] || 'sin-conexion';
-        const etiqueta = ESTADOS_DISPOSITIVO[estadoSeguro] ? estadoSeguro : 'Sin Conexión';
+        const estadoNormalizado = estado === 'Sistema Activo' ? 'Sistema Activo' : 'Estado Apagado';
+        const claseEstado = ESTADOS_DISPOSITIVO[estadoNormalizado];
 
         indicador.className = `indicador-dispositivo indicador-${claseEstado}`;
         indicador.textContent = '';
@@ -165,12 +169,8 @@
         const punto = document.createElement('span');
         punto.className = 'punto-indicador';
 
-        const texto = document.createElement('span');
-        texto.className = 'texto-indicador';
-        texto.textContent = etiqueta;
-
         indicador.appendChild(punto);
-        indicador.appendChild(texto);
+        indicador.appendChild(document.createTextNode(estadoNormalizado));
         indicador.title = `Actualizado ${new Date().toLocaleTimeString('es-PE')}`;
     }
 
@@ -183,7 +183,7 @@
 
         peticionEstadoEnCurso = true;
 
-        fetchConTiempoLimite('/SISTEMA-BIOMETRICO/estado_dispositivo.php', TIEMPO_LIMITE_PETICION_MS)
+        fetchConTiempoLimite(`${BIOASISTENCIA_BASE_URL}/api/consultar_estado.php`, TIEMPO_LIMITE_PETICION_MS)
             .then((respuesta) => {
                 if (!respuesta.ok) {
                     throw new Error('Respuesta no válida');
@@ -192,11 +192,11 @@
                 return respuesta.json();
             })
             .then((datos) => {
-                aplicarEstadoDispositivo(indicador, datos.estado || datos.estado_biometrico || 'Sin Conexión');
+                aplicarEstadoDispositivo(indicador, datos.estado || datos.estado_biometrico || 'Estado Apagado');
             })
             .catch(() => {
                 if (indicador.textContent.trim() === '') {
-                    aplicarEstadoDispositivo(indicador, 'Sin Conexión');
+                    aplicarEstadoDispositivo(indicador, 'Estado Apagado');
                 }
             })
             .finally(() => {
